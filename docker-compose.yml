@@ -23,12 +23,12 @@ services:
   pdns:
     image: psitrax/powerdns:${POWERDNS_VERSION:-v4.2.0}
     command:
-    - "--api"
-    - "--api-key=secret"
-    - "--webserver"
-    - "--webserver-address=0.0.0.0"
-    - "--webserver-allow-from=0.0.0.0/0"
-    - "--loglevel=10"
+      - "--api"
+      - "--api-key=secret"
+      - "--webserver"
+      - "--webserver-address=0.0.0.0"
+      - "--webserver-allow-from=0.0.0.0/0"
+      - "--loglevel=10"
     environment:
       MYSQL_USER: root
       MYSQL_PASS: secret
@@ -36,11 +36,11 @@ services:
       default:
         ipv4_address: 10.40.40.3
     depends_on:
-    - mysql
+      - mysql
     ports:
-    - "8081:8081"
-    - "8053:53"
-    - "8053:53/udp"
+      - "8081:8081"
+      - "8053:53"
+      - "8053:53/udp"
   mysql:
     image: mariadb:10.4.7-bionic
     networks:
@@ -54,32 +54,32 @@ services:
       default:
         ipv4_address: 10.40.40.200
     depends_on:
-    - pdns
-    - pebble
+      - pdns
+      - pebble
     command:
-    - sh
-    - -c
-    - |
-      apk add --no-cache curl &&
-      # check if pdns is ready
-      while true; do
-        echo "Checking if PDNS is up and responsing ... "
-        if curl -f http://pdns:8081/api -H "X-API-Key: secret"; then
-          break
-        fi
-        sleep 1
-      done
-      # check if pebble is ready
-      while true; do
-        echo "Checking if Pebble is up and responding ... "
-        if curl -k -f https://pebble:14000/dir; then
-          break
-        fi
-        sleep 1
-      done
-      curl -X POST http://pdns:8081/api/v1/servers/localhost/zones \
-        -d '{"name": "example.org.", "kind": "Native", "soa_edit_api": "", "nameservers": ["ns1.example.org."]}' \
-        -H "X-API-Key: secret"
-      curl -s -X POST http://pdns:8081/api/v1/servers/localhost/zones \
-        -d '{"name": "in-addr.arpa.", "kind": "Native", "nameservers": ["ns1.example.org."]}' \
-        -H "X-API-Key: secret"
+      - sh
+      - -c
+      - |
+        apk add --no-cache curl &&
+        # check if pdns is ready
+        while true; do
+          echo "Checking if PDNS is up and responsing ... "
+          if curl -f http://pdns:8081/api -H "X-API-Key: secret"; then
+            break
+          fi
+          sleep 1
+        done
+        # check if pebble is ready
+        while true; do
+          echo "Checking if Pebble is up and responding ... "
+          if curl -k -f https://pebble:14000/dir; then
+            break
+          fi
+          sleep 1
+        done
+        curl -X POST http://pdns:8081/api/v1/servers/localhost/zones \
+          -d '{"name": "example.org.", "kind": "Native", "soa_edit_api": "", "nameservers": ["ns1.example.org."]}' \
+          -H "X-API-Key: secret"
+        curl -s -X POST http://pdns:8081/api/v1/servers/localhost/zones \
+          -d '{"name": "in-addr.arpa.", "kind": "Native", "nameservers": ["ns1.example.org."]}' \
+          -H "X-API-Key: secret"
