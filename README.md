@@ -19,14 +19,14 @@ of other `certbot-dns-*` plugins found in the
 Installation
 ------------
 
-```
+```bash
 pip install --upgrade certbot
 pip install certbot-dns-powerdns
 ```
 
 Verify:
 
-```
+```bash
 $ certbot plugins
 ...
 * dns-powerdns
@@ -44,7 +44,7 @@ Configuration
 
 The credentials file e.g. `~/pdns-credentials.ini` should look like this:
 
-```
+```ini
 dns_powerdns_api_url = https://api.mypowerdns.example.org
 dns_powerdns_api_key = AbCbASsd!@34
 ```
@@ -53,7 +53,7 @@ Usage
 -----
 
 
-```
+```bash
 certbot ... \
         --authenticator dns-powerdns  \
         --dns-powerdns-credentials ~/pdns-credentials.ini \
@@ -69,11 +69,11 @@ Development
 Create a virtualenv, install the plugin (`editable` mode),
 spawn the environment and run the test:
 
-```
+```bash
 virtualenv -p python3 .venv
 . .venv/bin/activate
 pip install -e .
-docker-compose up -d
+docker compose up -d
 ./test/run_certonly.sh test/pdns-credentials.ini
 ```
 
