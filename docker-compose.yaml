@@ -1,4 +1,3 @@
-version: "3"
 networks:
   default:
     driver: bridge
@@ -49,7 +48,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: secret
   setup:
-    image: alpine:3.9
+    image: alpine:3.22
     networks:
       default:
         ipv4_address: 10.40.40.200
