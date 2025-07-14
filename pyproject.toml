@@ -1,0 +1,63 @@
+[build-system]
+	requires = ["setuptools>=75.3", "setuptools_scm"]
+	build-backend = "setuptools.build_meta"
+
+[project]
+	name = "certbot-dns-powerdns"
+	version = "0.2.2"
+	description = "PowerDNS DNS Authenticator plugin for Certbot"
+	readme = "README.md"
+	requires-python = ">=3.10"
+	license = { text = "Apache License 2.0" }
+	authors = [
+		{ name = "DT Pan-Net s.r.o", email = "pannet.security@pan-net.eu" }
+	]
+	classifiers = [
+		"Development Status :: 5 - Production/Stable",
+		"Environment :: Plugins",
+		"Intended Audience :: System Administrators",
+		"License :: OSI Approved :: Apache Software License",
+		"Operating System :: POSIX :: Linux",
+		"Programming Language :: Python",
+		"Programming Language :: Python :: 3",
+		"Programming Language :: Python :: 3.10",
+		"Programming Language :: Python :: 3.11",
+		"Programming Language :: Python :: 3.12",
+		"Programming Language :: Python :: 3.13",
+		"Topic :: Internet :: WWW/HTTP",
+		"Topic :: Security",
+		"Topic :: System :: Installation/Setup",
+		"Topic :: System :: Networking",
+		"Topic :: System :: Systems Administration",
+		"Topic :: Utilities",
+		"Typing :: Typed",
+		]
+
+	dependencies = [
+		"acme",
+		"certbot",
+		"dns-lexicon",
+		"dnspython",
+		"mock",
+		"setuptools",
+		"zope.interface",
+		"requests"
+	]
+
+[project.urls]
+	Homepage = "https://github.com/pan-net-security/certbot-dns-powerdns"
+
+[project.entry-points."certbot.plugins"]
+	dns-powerdns = "certbot_dns_powerdns.dns_powerdns:Authenticator"
+
+[tool.setuptools]
+	packages = ["certbot_dns_powerdns"]
+
+[tool.pyright]
+	pythonVersion = "3.10"
+
+[tool.ruff]
+	# Target non-EOL releases at minimum - https://devguide.python.org/versions/
+	target-version = "py310"
+	# Soft 80 and hard break at 120
+	line-length = 120
