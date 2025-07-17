@@ -10,7 +10,6 @@ env:
 # uses default POWERDNS_VERSION in docker-compose.yml
 python:
   # PyPy versions
-  - "3.9"
   - "3.10"
   - "3.11"
   - "3.12"
