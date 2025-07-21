@@ -76,21 +76,30 @@ class Authenticator(dns_common.DNSAuthenticator):
 			'PowerDNS credentials file',
 			{
 				'api-url': 'PowerDNS-compatible API FQDN',
-				'api-key': 'PowerDNS-compatible API key (X-API-Key)'
+				'api-url-secondary': 'PowerDNS-compatible API FQDN',
+				'api-key': 'PowerDNS-compatible API key (X-API-Key)',
+				'api-key-secondary': 'PowerDNS-compatible API key (X-API-Key)'
 			}
 		)
 
 	def _perform(self, domain: str, validation_name: str, validation: str) -> None:
-		self._get_powerdns_client().add_txt_record(
-			domain, validation_name, validation)
+		self._get_powerdns_client().add_txt_record(domain, validation_name, validation)
+		self._get_powerdns_client_secondary().add_txt_record(domain, validation_name, validation)
 
 	def _cleanup(self, domain: str, validation_name: str, validation: str) -> None:
-		self._get_powerdns_client().del_txt_record(
-			domain, validation_name, validation)
+		self._get_powerdns_client().del_txt_record(domain, validation_name, validation)
+		self._get_powerdns_client_secondary().del_txt_record(domain, validation_name, validation)
 
 	def _get_powerdns_client(self) -> _PowerDNSLexiconClient:
 		return _PowerDNSLexiconClient(
 			self.credentials.conf('api-url'),
 			self.credentials.conf('api-key'),
+			self.ttl
+		)
+
+	def _get_powerdns_client_secondary(self) -> _PowerDNSLexiconClient:
+		return _PowerDNSLexiconClient(
+			self.credentials.conf('api-url-secondary'),
+			self.credentials.conf('api-key-secondary'),
 			self.ttl
 		)
