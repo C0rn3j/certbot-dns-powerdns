@@ -57,12 +57,11 @@ class Authenticator(dns_common.DNSAuthenticator):
 
 	def __init__(self, *args, **kwargs) -> None:
 		super(Authenticator, self).__init__(*args, **kwargs)
-		self.credentials = None
+		self.credentials: dns_common.CredentialsConfiguration | None = None
 
 	@classmethod
 	def add_parser_arguments(cls, add) -> None:
-		super(Authenticator, cls).add_parser_arguments(
-			add, default_propagation_seconds=60)
+		super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=60)
 		add("credentials", help="PowerDNS credentials file.")
 
 	def more_info(self) -> str:  # pylint: disable=missing-docstring,no-self-use
@@ -76,19 +75,21 @@ class Authenticator(dns_common.DNSAuthenticator):
 			'PowerDNS credentials file',
 			{
 				'api-url': 'PowerDNS-compatible API FQDN',
-				'api-url-secondary': 'PowerDNS-compatible API FQDN',
 				'api-key': 'PowerDNS-compatible API key (X-API-Key)',
-				'api-key-secondary': 'PowerDNS-compatible API key (X-API-Key)'
 			}
 		)
 
 	def _perform(self, domain: str, validation_name: str, validation: str) -> None:
 		self._get_powerdns_client().add_txt_record(domain, validation_name, validation)
-		self._get_powerdns_client_secondary().add_txt_record(domain, validation_name, validation)
+		secondary_client = self._get_powerdns_client_secondary()
+		if secondary_client:
+			secondary_client.add_txt_record(domain, validation_name, validation)
 
 	def _cleanup(self, domain: str, validation_name: str, validation: str) -> None:
 		self._get_powerdns_client().del_txt_record(domain, validation_name, validation)
-		self._get_powerdns_client_secondary().del_txt_record(domain, validation_name, validation)
+		secondary_client = self._get_powerdns_client_secondary()
+		if secondary_client:
+			secondary_client.del_txt_record(domain, validation_name, validation)
 
 	def _get_powerdns_client(self) -> _PowerDNSLexiconClient:
 		return _PowerDNSLexiconClient(
@@ -97,9 +98,13 @@ class Authenticator(dns_common.DNSAuthenticator):
 			self.ttl
 		)
 
-	def _get_powerdns_client_secondary(self) -> _PowerDNSLexiconClient:
-		return _PowerDNSLexiconClient(
-			self.credentials.conf('api-url-secondary'),
-			self.credentials.conf('api-key-secondary'),
-			self.ttl
-		)
+	def _get_powerdns_client_secondary(self) -> _PowerDNSLexiconClient | None:
+		url = self.credentials.conf('api-url-secondary')
+		key = self.credentials.conf('api-key-secondary')
+		if url and key:
+			return _PowerDNSLexiconClient(
+				url,
+				key,
+				self.ttl
+			)
+		return None
