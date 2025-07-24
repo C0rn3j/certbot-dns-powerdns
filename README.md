@@ -47,6 +47,17 @@ The credentials file e.g. `~/pdns-credentials.ini` should look like this:
 ```ini
 dns_powerdns_api_url = https://api.mypowerdns.example.org
 dns_powerdns_api_key = AbCbASsd!@34
+# Optionally, if you have two DNS servers that are not linked
+dns_powerdns_api_url_secondary = https://api.mypowerdns-2.example.org
+dns_powerdns_api_key_secondary = AbCbASsd!@34
+# Optionally, if you are verifying another domain via a CNAME
+# This example would be requesting *.sub.example.com
+# But actually verifying it against a record on *.sub.shadow.com
+# This requires you to set up the CNAME on example.com domain pointing to shadow.com
+# This is useful if you do not have feasible API access to example.com
+dns_powerdns_shadow_domain = shadow.com
+dns_powerdns_shadow_domain_replaces = example.com
+
 ```
 
 Usage

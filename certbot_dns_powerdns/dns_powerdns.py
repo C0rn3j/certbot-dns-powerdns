@@ -67,6 +67,14 @@ class Authenticator(dns_common.DNSAuthenticator):
 	def more_info(self) -> str:  # pylint: disable=missing-docstring,no-self-use
 		return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using PowerDNS API'
 
+
+	def get_replaced_domain(self, requested_domain: str) -> str:
+		shadow_domain = self.credentials.conf('shadow-domain')
+		replace_part = self.credentials.conf('shadow-domain-replaces')
+		if shadow_domain and replace_part:
+			return rreplace(requested_domain, replace_part, shadow_domain)
+		return requested_domain
+
 	def _setup_credentials(self) -> None:
 		self._configure_file('credentials', 'Absolute path to PowerDNS credentials file')
 		dns_common.validate_file_permissions(self.conf('credentials'))
@@ -80,12 +88,14 @@ class Authenticator(dns_common.DNSAuthenticator):
 		)
 
 	def _perform(self, domain: str, validation_name: str, validation: str) -> None:
+		domain = self.get_replaced_domain(domain)
 		self._get_powerdns_client().add_txt_record(domain, validation_name, validation)
 		secondary_client = self._get_powerdns_client_secondary()
 		if secondary_client:
 			secondary_client.add_txt_record(domain, validation_name, validation)
 
 	def _cleanup(self, domain: str, validation_name: str, validation: str) -> None:
+		domain = self.get_replaced_domain(domain)
 		self._get_powerdns_client().del_txt_record(domain, validation_name, validation)
 		secondary_client = self._get_powerdns_client_secondary()
 		if secondary_client:
@@ -108,3 +118,6 @@ class Authenticator(dns_common.DNSAuthenticator):
 				self.ttl
 			)
 		return None
+
+def rreplace(string: str, old: str, new: str, count: int = 1) -> str:
+	return new.join(string.rsplit(old, count))
